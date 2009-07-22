@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCFChannelManager", "WCFChannelManager\WCFChannelManager.csproj", "{E94EB6C3-E81F-4C5C-BEDE-B4CC79D0E938}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WCFChannelManagerTests", "WCFChannelManagerTests\WCFChannelManagerTests.csproj", "{092C9457-CC27-4AB3-9CB2-7488CB9AB267}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E94EB6C3-E81F-4C5C-BEDE-B4CC79D0E938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E94EB6C3-E81F-4C5C-BEDE-B4CC79D0E938}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E94EB6C3-E81F-4C5C-BEDE-B4CC79D0E938}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E94EB6C3-E81F-4C5C-BEDE-B4CC79D0E938}.Release|Any CPU.Build.0 = Release|Any CPU
+		{092C9457-CC27-4AB3-9CB2-7488CB9AB267}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{092C9457-CC27-4AB3-9CB2-7488CB9AB267}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{092C9457-CC27-4AB3-9CB2-7488CB9AB267}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{092C9457-CC27-4AB3-9CB2-7488CB9AB267}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
