@@ -20,5 +20,8 @@ namespace WCFChannelManagerTests
 
         [OperationContract]
         void Calculate(int a, int b, out int c);
+
+        [OperationContract]
+        ComplexObject ReturnComplexObject();
     }
 }

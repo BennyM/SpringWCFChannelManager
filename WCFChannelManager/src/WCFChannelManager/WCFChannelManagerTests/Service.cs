@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.Serialization;
 
 namespace WCFChannelManagerTests
 {
@@ -30,6 +31,28 @@ namespace WCFChannelManagerTests
             c = a + b;
         }
 
+        public object ReturnsNull()
+        {
+            return null;
+        }
+
         #endregion
+
+        #region IService Members
+
+
+        public ComplexObject ReturnComplexObject()
+        {
+            return null;
+        }
+
+        #endregion
+    }
+
+    [DataContract]
+    public class ComplexObject
+    {
+        [DataMember]
+        public int Value { get; set; }
     }
 }

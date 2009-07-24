@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using WCFChannelManager;
+using System.Reflection;
 
 namespace WCFChannelManagerTests
 {
@@ -40,5 +41,34 @@ namespace WCFChannelManagerTests
             Assert.IsTrue(t.IsSubclassOf(typeof(ProxyChannel<IService>)));
             Assert.IsNotNull(t.GetInterface("IService", true));
         }
+
+        [Test]
+        public void Proxy_WhenCallingMethodThatReturnsNull_DoesNotThrowException()
+        {
+            WcfChannelProxyTypeBuilder builder = new WcfChannelProxyTypeBuilder(typeof(ProxyChannel<IService>));
+
+            Type t = builder.BuildProxyType();
+            ConstructorInfo constructorInfo = t.GetConstructors()[0];
+
+            ProxyChannel<IService> channel = (ProxyChannel<IService>) constructorInfo.Invoke(null);
+            channel.ChannelManager = new StubChannelManager();
+          ((IService)channel).ReturnComplexObject();
+
+        }
+
+        public class StubChannelManager
+            : IChannelManager<IService>
+        {
+            public IService FetchChannelToWorkWith()
+            {
+                return new Service();
+            }
+
+            public void FinishedWorkWithChannel(IService channel)
+            {
+                
+            }
+        }
+
     }
 }

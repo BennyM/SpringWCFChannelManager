@@ -90,14 +90,7 @@ namespace WCFChannelManager
             {
                 FinishedWorkWithChannel(channel);
             }
-            if (returnValue != null)
-            {
-                return new object[] { returnValue };
-            }
-            else
-            {
-                return null;
-            }
+            return new object[] { returnValue };
         }
 
         /// <summary>
