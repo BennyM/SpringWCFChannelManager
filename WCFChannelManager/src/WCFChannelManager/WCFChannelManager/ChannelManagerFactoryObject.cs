@@ -1,4 +1,4 @@
-﻿//Copyright 2009 Benny Michielsen
+﻿//Copyright 2009 Sergio Moreno Calzada
 
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
@@ -25,6 +25,10 @@ using Spring.Objects.Factory;
 
 namespace WCFChannelManager
 {
+    using AopAlliance.Aop;
+
+    using Spring.Aop.Framework;
+
     /// <summary>
     /// ChannelManagerFactoryObjects dynamically subclasses ChannelActionWrappers and implements the channel interface
     /// </summary>
@@ -32,6 +36,7 @@ namespace WCFChannelManager
         : IConfigurableFactoryObject, IInitializingObject
     {
         protected ConstructorInfo proxyConstructor;
+        protected ConstructorInfo interceptorConstructor;
 
         public const string SingleAction = "SingleAction";
         public const string FixedPool = "FixedPool";
@@ -58,13 +63,26 @@ namespace WCFChannelManager
         /// <returns>New instance of the channelmanager</returns>
         public object GetObject()
         {
-            if (proxyConstructor == null)
+            if (proxyConstructor == null || interceptorConstructor == null)
             {
                 GenerateProxy();
             }
             object channelProxy = ObjectUtils.InstantiateType(proxyConstructor, ObjectUtils.EmptyObjects);
+            object interceptorProxy = ObjectUtils.InstantiateType(interceptorConstructor, ObjectUtils.EmptyObjects);
+
+
+            
+
+            AdvisedSupport advisedSupport = new AdvisedSupport(new Type[] { ChannelType });
+            advisedSupport.AddAdvice((IAdvice)interceptorProxy);
+            advisedSupport.Target = channelProxy;
+            advisedSupport.ProxyTargetType = true;
+
+            var proxy = advisedSupport.AopProxyFactory.CreateAopProxy(advisedSupport);
+
             SetDefaultValues(channelProxy);
-            return channelProxy;
+
+            return proxy;
         }
 
         /// <summary>
@@ -76,7 +94,7 @@ namespace WCFChannelManager
             if (ProductTemplate == null || !ProductTemplate.PropertyValues.Contains(ChannelManagerPropertyName))
             {
                 Type channelManagerType = null;
-                Type channelType = WcfChannelProxyTypeBuilder.FindChannelType(channelProxy.GetType());
+                Type channelType = FindChannelType(channelProxy.GetType());
                 List<Type> contructorArgumentTypes = new List<Type>();
                 contructorArgumentTypes.Add(typeof(string));
                 List<object> constructorArguments = new List<object>();
@@ -167,21 +185,20 @@ namespace WCFChannelManager
         /// <returns>The channel type.</returns>
         protected Type BuildChannelActionWrapperType()
         {
-            Type baseClass = null;
-            if (ChannelActionWrapperType == null)
-            {
-                baseClass = typeof(ProxyChannel<>).MakeGenericType(ChannelType);
-            }
-            else if (ChannelActionWrapperType.IsGenericType)
-            {
-                baseClass = ChannelActionWrapperType.MakeGenericType(ChannelType);
-            }
-            else
-            {
-                baseClass = ChannelActionWrapperType;
-            }
+            Type baseClass = typeof(ProxyChannel<>).MakeGenericType(ChannelType);
             return baseClass;
         }
+
+        /// <summary>
+        /// Returns the type of the Interceptor to use.
+        /// </summary>
+        /// <returns>The channel type.</returns>
+        protected Type BuildInterceptorWrapperType()
+        {
+            Type baseClass = typeof(WcfInterceptor<>).MakeGenericType(ChannelType);
+            return baseClass;
+        }
+
 
         /// <summary>
         /// Returns the channel type.
@@ -197,7 +214,7 @@ namespace WCFChannelManager
             }
             else
             {
-                channelType = WcfChannelProxyTypeBuilder.FindChannelType(channelActionWrapperType);
+                channelType = FindChannelType(channelActionWrapperType);
             }
             return channelType;
         }
@@ -207,13 +224,33 @@ namespace WCFChannelManager
         /// </summary>
         protected virtual void GenerateProxy()
         {
-            Type baseClass = BuildChannelActionWrapperType();
-            IProxyTypeBuilder builder = new WcfChannelProxyTypeBuilder(baseClass);
-            Type wrapper = builder.BuildProxyType();
-            proxyConstructor = wrapper.GetConstructor(Type.EmptyTypes);
+            Type proxyType = BuildChannelActionWrapperType();
+            proxyConstructor = proxyType.GetConstructor(Type.EmptyTypes);
+
+            Type interceptorType = this.BuildInterceptorWrapperType();
+            interceptorConstructor = interceptorType.GetConstructor(Type.EmptyTypes);
         }
 
-
+        /// <summary>
+        /// Finds the channeltype from a ChannelActionWrapperType.
+        /// </summary>
+        /// <param name="channelManagerType">The ChannelManagerType.</param>
+        /// <returns>Returns the channaltype if found, otherwise null.</returns>
+        protected  virtual Type FindChannelType(Type channelManagerType)
+        {
+            Type t = channelManagerType;
+            Type channelType = null;
+            while (t != typeof(object) && channelType == null)
+            {
+                var cur = t.IsGenericType ? t.GetGenericTypeDefinition() : t;
+                if (typeof(ProxyChannel<>) == cur)
+                {
+                    channelType = t.GetGenericArguments()[0];
+                }
+                t = t.BaseType;
+            }
+            return channelType;
+        }
 
         #region IInitializingObject Members
         /// <summary>
@@ -222,7 +259,7 @@ namespace WCFChannelManager
         public virtual void AfterPropertiesSet()
         {
             if ((ChannelType == null && ChannelActionWrapperType == null) ||
-                (ChannelType == null && ChannelActionWrapperType != null && WcfChannelProxyTypeBuilder.FindChannelType(ChannelActionWrapperType).IsGenericParameter))
+                (ChannelType == null && ChannelActionWrapperType != null && FindChannelType(ChannelActionWrapperType).IsGenericParameter))
             {
                 throw new ArgumentException("No channeltype supplied.");
             }

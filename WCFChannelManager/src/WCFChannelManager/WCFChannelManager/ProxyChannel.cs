@@ -1,4 +1,4 @@
-﻿//Copyright 2009 Benny Michielsen
+﻿//Copyright Sergio Moreno Calzada
 
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ namespace WCFChannelManager
         /// <param name="methodName">The name of the method.</param>
         /// <param name="parameters">Parameters used by the method.</param>
         /// <returns>Returns any value returned by the method invoked on the channel.</returns>
-        protected object Execute(string methodName, object[] parameters)
+        public object Execute(string methodName, object[] parameters)
         {
             Type[] parameterTypes;
             if(parameters == null || parameters.Length == 0)
