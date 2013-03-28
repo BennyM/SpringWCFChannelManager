@@ -34,6 +34,31 @@ namespace WCFChannelManagerTests
             repo.VerifyAll();
 
         }
+
+        [Test]
+        public void ProxyChannel_WhenCalledToExecuteMethod_WithByRefParameter_DoesWorkflow()
+        {
+            StubProxyChannel wrapper = new StubProxyChannel();
+            MockRepository repo = new MockRepository();
+            var channelManager = repo.StrictMock<IChannelManager<IService>>();
+            var channel = repo.StrictMock<IService>();
+
+            Expect.Call(channelManager.FetchChannelToWorkWith()).Return(channel);
+            var number = 0;
+            channel.DoOperationWithByRef(ref number);
+            channelManager.FinishedWorkWithChannel(channel);
+            repo.ReplayAll();
+
+            wrapper.ChannelManager = channelManager;
+            MethodInfo methodToExecuteOnChannel = (typeof(IService)).GetMethod("DoOperationWithByRef");
+            wrapper.DoOperation(methodToExecuteOnChannel, new object[] {number});
+
+            repo.VerifyAll();
+
+        }
   
     }
+
+    
+
 }

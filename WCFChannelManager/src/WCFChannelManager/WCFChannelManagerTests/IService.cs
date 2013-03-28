@@ -23,5 +23,8 @@ namespace WCFChannelManagerTests
 
         [OperationContract]
         ComplexObject ReturnComplexObject();
+
+        [OperationContract]
+        void DoOperationWithByRef(ref int number);
     }
 }
