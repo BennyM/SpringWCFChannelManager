@@ -1,4 +1,4 @@
-﻿//Copyright Sergio Moreno Calzada
+﻿//Copyright 2013 Sergio Moreno Calzada
 
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
@@ -74,7 +74,7 @@ namespace WCFChannelManager
         /// <param name="method">The method to invoke on the channel.</param>
         /// <param name="parameters">Any parameters that are needed when invoking the method.</param>
         /// <returns>AReturns any value returned by the method invoked on the channel.</returns>
-        protected object[] ExecuteInChannel(MethodInfo method, object[] parameters)
+        protected object ExecuteInChannel(MethodInfo method, object[] parameters)
         {
             TChannel channel = GetChannelToWorkWith();
             object returnValue;
@@ -90,7 +90,7 @@ namespace WCFChannelManager
             {
                 FinishedWorkWithChannel(channel);
             }
-            return new object[] { returnValue };
+            return  returnValue ;
         }
 
         /// <summary>
@@ -108,23 +108,25 @@ namespace WCFChannelManager
         /// <param name="methodName">The name of the method.</param>
         /// <param name="parameters">Parameters used by the method.</param>
         /// <returns>Returns any value returned by the method invoked on the channel.</returns>
-        public object Execute(string methodName, object[] parameters)
+        public object Execute(MethodInfo method, object[] parameters)
         {
-            Type[] parameterTypes;
-            if(parameters == null || parameters.Length == 0)
-            {
-                parameterTypes = Type.EmptyTypes;
-            }
-            else
-            {
-                List<Type> types = new List<Type>();
-                foreach(object o in parameters)
-                {
-                    types.Add(o.GetType());
-                }
-                parameterTypes = types.ToArray();
-            }
-            MethodInfo methodToCall = typeof(TChannel).GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public, null, parameterTypes,null);
+
+            Type[] parameterTypes = method.GetParameters().Select(p => p.ParameterType).ToArray(); 
+            //Type[] parameterTypes;
+            //if(parameters == null || parameters.Length == 0)
+            //{
+            //    parameterTypes = Type.EmptyTypes;
+            //}
+            //else
+            //{
+            //    List<Type> types = new List<Type>();
+            //    foreach(object o in parameters)
+            //    {
+            //        types.Add(o.GetType());
+            //    }
+            //    parameterTypes = types.ToArray();
+            //}
+            MethodInfo methodToCall = typeof(TChannel).GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Public, null, parameterTypes,null);
             return ExecuteInChannel(methodToCall, parameters);
         }
 

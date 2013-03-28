@@ -6,8 +6,7 @@ using System.Runtime.Serialization;
 
 namespace WCFChannelManagerTests
 {
-    public class Service
-        : IService
+    public class Service : IService
     {
         #region IService Members
 
@@ -44,6 +43,11 @@ namespace WCFChannelManagerTests
         public ComplexObject ReturnComplexObject()
         {
             return null;
+        }
+
+        public void DoOperationWithByRef(ref int number)
+        {
+            number = 5;
         }
 
         #endregion

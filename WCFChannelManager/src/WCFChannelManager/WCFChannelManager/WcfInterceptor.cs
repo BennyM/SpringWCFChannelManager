@@ -1,4 +1,4 @@
-﻿//Copyright 2009 Sergio Moreno Calzada
+﻿//Copyright 2013 Sergio Moreno Calzada
 
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ namespace WCFChannelManager
                 return invocation.Proceed();
             }
 
-            var result = proxy.Execute(invocation.Method.Name, invocation.Arguments);
+            var result = proxy.Execute(invocation.Method, invocation.Arguments);
             return result;
         }
 
